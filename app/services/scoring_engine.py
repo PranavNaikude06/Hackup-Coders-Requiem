@@ -65,8 +65,7 @@ class ScoringEngine:
             sender_email = _re.search(r'[\w\.-]+@[\w\.-]+', sender)
             if sender_email:
                 sender_domain = sender_email.group(0).split("@")[1].strip()
-                sender_features = self.url_extractor.extract(sender_domain)
-                s_lookalike = sender_features.get("_lookalike", {})
+                s_lookalike = self.url_extractor.homograph_detector.check_similarity(sender_domain)
                 if s_lookalike.get("is_lookalike"):
                     flags.append(f"RULE HIT: Sender impersonates '{s_lookalike.get('matched_brand')}'")
                     rule_hit = True

@@ -148,8 +148,16 @@ class URLFeatureExtractor:
         domain_reg = 0
         age_of_domain = 0
         whois_lookup_failed = False
+        
+        import concurrent.futures
+        def fetch_whois():
+            return whois.whois(domain)
+
         try:
-            w = whois.whois(domain)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(fetch_whois)
+                w = future.result(timeout=1.5)  # Strict 1.5s timeout
+
             creation_date = w.creation_date
             expiration_date = w.expiration_date
             if isinstance(creation_date, list): creation_date = creation_date[0]
@@ -160,16 +168,18 @@ class URLFeatureExtractor:
                 domain_reg = -1 if reg_length > 365 else 1
                 age = (datetime.now() - creation_date).days
                 age_of_domain = -1 if age >= 180 else 1
-        except:
+        except Exception:
             domain_reg = 1   # Unable to verify = suspicious
             age_of_domain = 1
             whois_lookup_failed = True
 
         # 25. DNSRecord
         try:
-            socket.gethostbyname(domain)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(socket.gethostbyname, domain)
+                future.result(timeout=1.0)
             dns_record = -1
-        except:
+        except Exception:
             dns_record = 1
 
         # Remaining features defaulted to safe (-1)

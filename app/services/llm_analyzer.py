@@ -48,38 +48,50 @@ class LLMAnalyzer:
             partial_variables={"format_instructions": self.parser.get_format_instructions()},
         )
 
-        # Primary: Groq (Llama 3.3 70B)
-        groq_key = os.getenv("GROQ_API_KEY")
-        self.primary_llm = None
-        if groq_key:
-            try:
-                self.primary_llm = ChatGroq(
-                    model="llama-3.3-70b-versatile",
-                    api_key=groq_key,
-                    temperature=0.1
-                )
-                print("[LLM] Groq (Llama 3.3 70B) — primary ready")
-            except Exception as e:
-                print(f"[LLM] Groq init failed: {e}")
+# ─────────── LLMs Global Setup ───────────
+_PRIMARY_LLM = None
+_FALLBACK_LLM = None
 
-        # Fallback: OpenRouter (Gemma 3 27B)
-        openrouter_key = os.getenv("OPENROUTER_API_KEY")
-        self.fallback_llm = None
-        if openrouter_key:
-            try:
-                self.fallback_llm = ChatOpenAI(
-                    model="google/gemma-3-27b-it",
-                    api_key=openrouter_key,
-                    base_url="https://openrouter.ai/api/v1",
-                    temperature=0.1,
-                    default_headers={
-                        "HTTP-Referer": "http://localhost:8765",
-                        "X-Title": "ThreatLens"
-                    }
-                )
-                print("[LLM] OpenRouter (Gemma 3 27B) — fallback ready")
-            except Exception as e:
-                print(f"[LLM] OpenRouter init failed: {e}")
+groq_key = os.getenv("GROQ_API_KEY")
+if groq_key:
+    try:
+        _PRIMARY_LLM = ChatGroq(
+            model="llama-3.3-70b-versatile",
+            api_key=groq_key,
+            temperature=0.1
+        )
+        print("[LLM] Groq (Llama 3.3 70B) — primary ready")
+    except Exception as e:
+        print(f"[LLM] Groq init failed: {e}")
+
+openrouter_key = os.getenv("OPENROUTER_API_KEY")
+if openrouter_key:
+    try:
+        _FALLBACK_LLM = ChatOpenAI(
+            model="google/gemma-3-27b-it",
+            api_key=openrouter_key,
+            base_url="https://openrouter.ai/api/v1",
+            temperature=0.1,
+            default_headers={
+                "HTTP-Referer": "http://localhost:8765",
+                "X-Title": "ThreatLens"
+            }
+        )
+        print("[LLM] OpenRouter (Gemma 3 27B) — fallback ready")
+    except Exception as e:
+        print(f"[LLM] OpenRouter init failed: {e}")
+
+
+class LLMAnalyzer:
+    def __init__(self):
+        self.parser = JsonOutputParser(pydantic_object=PhishingVerdict)
+        self.prompt = PromptTemplate(
+            template=SYSTEM_PROMPT,
+            input_variables=["url", "email", "sender", "subject"],
+            partial_variables={"format_instructions": self.parser.get_format_instructions()},
+        )
+        self.primary_llm = _PRIMARY_LLM
+        self.fallback_llm = _FALLBACK_LLM
 
     def _run_chain(self, llm, url: str, email: str, sender: str, subject: str) -> dict:
         chain = self.prompt | llm | self.parser
