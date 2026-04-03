@@ -55,7 +55,8 @@ async function handleScanEmailWithStream(message, sender) {
       email_text: email_body, 
       url: urls.length > 0 ? urls[0] : '',
       sender: msgSender,
-      subject: subject
+      subject: subject,
+      fast_mode: true
     }).catch(() => {
       // SSE is best-effort — failure doesn't block the final result
     });
@@ -136,7 +137,8 @@ async function handleScanEmail(message, sender) {
         url: urls.length > 0 ? urls[0] : '',
         email_text: email_body,
         sender: msgSender,
-        subject: subject
+        subject: subject,
+        fast_mode: true
       })
     });
 

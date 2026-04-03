@@ -198,12 +198,14 @@ async def analyze_combined_endpoint(request: Request):
         email_text = str(payload.get("email_text", ""))
         sender = str(payload.get("sender", ""))
         subject = str(payload.get("subject", ""))
+        fast_mode = bool(payload.get("fast_mode", False))
     except Exception:
         # Stage 2: regex extraction — handles extra quotes, stray chars, raw \n
         url_m = re.search(r'"url"\s*:\s*"((?:[^"\\]|\\.)*)"', raw_str)
         email_m = re.search(r'"email_text"\s*:\s*"((?:[^"\\]|\\.)*)"', raw_str)
         sender_m = re.search(r'"sender"\s*:\s*"((?:[^"\\]|\\.)*)"', raw_str)
         subject_m = re.search(r'"subject"\s*:\s*"((?:[^"\\]|\\.)*)"', raw_str)
+        fast_mode_m = re.search(r'"fast_mode"\s*:\s*(true|false)', raw_str, re.IGNORECASE)
         if url_m:
             url_text = url_m.group(1).encode("raw_unicode_escape").decode("unicode_escape", errors="replace")
         if email_m:
@@ -212,6 +214,10 @@ async def analyze_combined_endpoint(request: Request):
             sender = sender_m.group(1).encode("raw_unicode_escape").decode("unicode_escape", errors="replace")
         if subject_m:
             subject = subject_m.group(1).encode("raw_unicode_escape").decode("unicode_escape", errors="replace")
+        if fast_mode_m:
+            fast_mode = fast_mode_m.group(1).lower() == "true"
+        else:
+            fast_mode = False
         if not url_text and not email_text:
             raise HTTPException(status_code=400, detail="Invalid JSON payload — could not parse 'url' or 'email_text'")
 
@@ -233,7 +239,7 @@ async def analyze_combined_endpoint(request: Request):
     )
 
     try:
-        result = scoring_engine.calculate_combined_score(url_text, email_text, sender, subject)
+        result = scoring_engine.calculate_combined_score(url_text, email_text, sender, subject, fast_mode)
         return {
             "status": "success",
             **result

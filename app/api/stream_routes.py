@@ -37,11 +37,14 @@ async def analyze_stream(request: Request):
             payload = json.loads(raw_str)
             url = str(payload.get("url", ""))
             email_text = str(payload.get("email_text", ""))
+            fast_mode = bool(payload.get("fast_mode", False))
         except Exception:
             url_m = _re.search(r'"url"\s*:\s*"((?:[^"\\]|\\.)*)"', raw_str)
             email_m = _re.search(r'"email_text"\s*:\s*"((?:[^"\\]|\\.)*)"', raw_str)
+            fast_mode_m = _re.search(r'"fast_mode"\s*:\s*(true|false)', raw_str, _re.IGNORECASE)
             url = url_m.group(1) if url_m else ""
             email_text = email_m.group(1) if email_m else ""
+            fast_mode = fast_mode_m.group(1).lower() == "true" if fast_mode_m else False
     except Exception as e:
         async def _err():
             yield _sse("error", {"message": f"Could not parse request: {e}"})
@@ -59,7 +62,7 @@ async def analyze_stream(request: Request):
         # ── Stage 1: URL Scan ──────────────────────────────────────────────
         try:
             if url:
-                url_features = extractor.extract(url)
+                url_features = extractor.extract(url, fast_mode=fast_mode)
                 url_analysis = runner.predict(url_features)
                 u_risk = url_analysis.get("risk_flag", "SAFE")
                 u_conf = url_analysis.get("confidence", 0)
@@ -92,7 +95,7 @@ async def analyze_stream(request: Request):
             embedded_scan = []
             for eurl in list(dict.fromkeys(embedded_urls))[:5]:
                 try:
-                    ef = extractor.extract(eurl)
+                    ef = extractor.extract(eurl, fast_mode=fast_mode)
                     er = runner.predict(ef)
                     embedded_scan.append({"url": eurl, "risk_flag": er.get("risk_flag", "SAFE")})
                 except Exception:

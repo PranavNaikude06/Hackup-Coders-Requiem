@@ -12,7 +12,7 @@ class URLFeatureExtractor:
     def __init__(self):
         self.homograph_detector = HomographDetector()
 
-    def extract(self, url: str) -> dict:
+    def extract(self, url: str, fast_mode: bool = False) -> dict:
         if not url.startswith(('http://', 'https://')):
             url = 'http://' + url
             
@@ -66,12 +66,13 @@ class URLFeatureExtractor:
         # --- Content-based features (fetch HTML) ---
         soup = None
         redirect = 0
-        try:
-            response = requests.get(url, timeout=1.5, allow_redirects=True)
-            soup = BeautifulSoup(response.content, 'html.parser')
-            redirect = 1 if len(response.history) > 1 else -1
-        except:
-            redirect = 0
+        if not fast_mode:
+            try:
+                response = requests.get(url, timeout=1.5, allow_redirects=True)
+                soup = BeautifulSoup(response.content, 'html.parser')
+                redirect = 1 if len(response.history) > 1 else -1
+            except:
+                redirect = 0
 
         # 10. Favicon
         favicon = -1
@@ -149,38 +150,40 @@ class URLFeatureExtractor:
         age_of_domain = 0
         whois_lookup_failed = False
         
-        import concurrent.futures
-        def fetch_whois():
-            return whois.whois(domain)
+        if not fast_mode:
+            import concurrent.futures
+            def fetch_whois():
+                return whois.whois(domain)
 
-        try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(fetch_whois)
-                w = future.result(timeout=1.5)  # Strict 1.5s timeout
+            try:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(fetch_whois)
+                    w = future.result(timeout=1.5)  # Strict 1.5s timeout
 
-            creation_date = w.creation_date
-            expiration_date = w.expiration_date
-            if isinstance(creation_date, list): creation_date = creation_date[0]
-            if isinstance(expiration_date, list): expiration_date = expiration_date[0]
-            
-            if creation_date and expiration_date:
-                reg_length = (expiration_date - creation_date).days
-                domain_reg = -1 if reg_length > 365 else 1
-                age = (datetime.now() - creation_date).days
-                age_of_domain = -1 if age >= 180 else 1
-        except Exception:
-            domain_reg = 1   # Unable to verify = suspicious
-            age_of_domain = 1
-            whois_lookup_failed = True
+                creation_date = w.creation_date
+                expiration_date = w.expiration_date
+                if isinstance(creation_date, list): creation_date = creation_date[0]
+                if isinstance(expiration_date, list): expiration_date = expiration_date[0]
+                
+                if creation_date and expiration_date:
+                    reg_length = (expiration_date - creation_date).days
+                    domain_reg = -1 if reg_length > 365 else 1
+                    age = (datetime.now() - creation_date).days
+                    age_of_domain = -1 if age >= 180 else 1
+            except Exception:
+                domain_reg = 1   # Unable to verify = suspicious
+                age_of_domain = 1
+                whois_lookup_failed = True
 
         # 25. DNSRecord
-        try:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(socket.gethostbyname, domain)
-                future.result(timeout=1.0)
-            dns_record = -1
-        except Exception:
-            dns_record = 1
+        dns_record = -1
+        if not fast_mode:
+            try:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(socket.gethostbyname, domain)
+                    future.result(timeout=1.0)
+            except Exception:
+                dns_record = 1
 
         # Remaining features defaulted to safe (-1)
         web_traffic = -1

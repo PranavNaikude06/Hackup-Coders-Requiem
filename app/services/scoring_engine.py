@@ -21,7 +21,7 @@ class ScoringEngine:
         else:  # SAFE
             return max(0.0, min(40.0, (1.0 - confidence) * 40))
 
-    def _run_ml_pipeline(self, url: str, email_text: str, sender: str = "", subject: str = "") -> dict:
+    def _run_ml_pipeline(self, url: str, email_text: str, sender: str = "", subject: str = "", fast_mode: bool = False) -> dict:
         """Full local ML pipeline — used as final fallback when both LLMs fail."""
         flags = []
         url_score = 0
@@ -30,7 +30,7 @@ class ScoringEngine:
 
         # 1. Evaluate URL with RandomForest
         if url:
-            url_features = self.url_extractor.extract(url)
+            url_features = self.url_extractor.extract(url, fast_mode=fast_mode)
             url_analysis = self.model_runner.predict(url_features)
             if "error" in url_analysis:
                 raise ValueError(f"URL Analysis Error: {url_analysis['error']}")
@@ -178,7 +178,7 @@ class ScoringEngine:
             "flags": flags
         }
 
-    def calculate_combined_score(self, url: str, email_text: str, sender: str = "", subject: str = "") -> dict:
+    def calculate_combined_score(self, url: str, email_text: str, sender: str = "", subject: str = "", fast_mode: bool = False) -> dict:
         """
         Priority chain:
           1. Groq (Llama 3.3 70B) — primary LLM
@@ -229,7 +229,7 @@ class ScoringEngine:
         else:
             # ── Both LLMs failed — run full ML pipeline ──
             print("[ScoringEngine] Both LLMs unavailable — running local ML pipeline")
-            final_result = self._run_ml_pipeline(url, email_text, sender, subject)
+            final_result = self._run_ml_pipeline(url, email_text, sender, subject, fast_mode)
             
         # ── Campaign Clustering ──
         try:
