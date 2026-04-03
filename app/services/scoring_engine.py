@@ -166,7 +166,7 @@ class ScoringEngine:
             "flags": flags
         }
 
-    def calculate_combined_score(self, url: str, email_text: str) -> dict:
+    def calculate_combined_score(self, url: str, email_text: str, sender: str = "", subject: str = "") -> dict:
         """
         Priority chain:
           1. Groq (Llama 3.3 70B) — primary LLM
@@ -175,7 +175,7 @@ class ScoringEngine:
         """
         from app.services.llm_analyzer import LLMAnalyzer
         llm = LLMAnalyzer()
-        llm_result = llm.analyze(url, email_text)
+        llm_result = llm.analyze(url, email_text, sender, subject)
 
         if "error" not in llm_result:
             # ── LLM succeeded — use its verdict as the primary result ──

@@ -143,7 +143,7 @@
     const verdict = result?.verdict ?? 'OFFLINE';
     const score   = result?.score ?? result?.combined_score;
     const flags   = Array.isArray(result?.flags) ? result.flags : [];
-    const action  = result?.recommended_action ?? '';
+    const action  = result?.llm_human_explanation ?? result?.recommended_action ?? '';
 
     const { color, bg } = _getVerdictColors(verdict);
 

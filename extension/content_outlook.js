@@ -74,7 +74,7 @@
 
     // Send to background service worker for analysis
     chrome.runtime.sendMessage(
-      { type: 'SCAN_EMAIL', email_body: emailText, urls, client: 'outlook' },
+      { type: 'SCAN_EMAIL', email_body: emailText, urls, client: 'outlook', sender, subject },
       (result) => {
         if (chrome.runtime.lastError) {
           console.error('[ThreatLens] Message error:', chrome.runtime.lastError.message);

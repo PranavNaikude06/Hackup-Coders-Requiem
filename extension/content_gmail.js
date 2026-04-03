@@ -73,7 +73,7 @@
 
     // Send to background service worker for analysis
     chrome.runtime.sendMessage(
-      { type: 'SCAN_EMAIL', email_body: emailText, urls, client: 'gmail' },
+      { type: 'SCAN_EMAIL', email_body: emailText, urls, client: 'gmail', sender, subject },
       (result) => {
         if (chrome.runtime.lastError) {
           console.error('[ThreatLens] Message error:', chrome.runtime.lastError.message);

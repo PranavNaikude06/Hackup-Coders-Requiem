@@ -46,14 +46,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  * @returns {Promise<object>} - backend analysis result or OFFLINE fallback
  */
 async function handleScanEmailWithStream(message, sender) {
-  const { email_body = '', urls = [], client = 'unknown' } = message;
+  const { email_body = '', urls = [], client = 'unknown', sender: msgSender='', subject='' } = message;
   const tabId = sender?.tab?.id ?? null;
 
   // Fire SSE stream in parallel (non-blocking) for live progress updates
   if (tabId) {
     connectSSEStream(tabId, { 
       email_text: email_body, 
-      url: urls.length > 0 ? urls[0] : '' 
+      url: urls.length > 0 ? urls[0] : '',
+      sender: msgSender,
+      subject: subject
     }).catch(() => {
       // SSE is best-effort — failure doesn't block the final result
     });
@@ -124,7 +126,7 @@ async function connectSSEStream(tabId, payload) {
  * Calls /analyze/combined, caches result, returns analysis object.
  */
 async function handleScanEmail(message, sender) {
-  const { email_body = '', urls = [], client = 'unknown' } = message;
+  const { email_body = '', urls = [], client = 'unknown', sender: msgSender = '', subject = '' } = message;
 
   try {
     const response = await fetch(COMBINED_ENDPOINT, {
@@ -132,7 +134,9 @@ async function handleScanEmail(message, sender) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         url: urls.length > 0 ? urls[0] : '',
-        email_text: email_body
+        email_text: email_body,
+        sender: msgSender,
+        subject: subject
       })
     });
 
