@@ -59,6 +59,7 @@
     const flags   = Array.isArray(data.flags) ? data.flags : [];
     const action  = data.recommended_action ?? '';
     const client  = CLIENT_LABELS[data.client] ?? CLIENT_LABELS.unknown;
+    const score   = data.score ?? data.combined_score;
 
     // Switch to result view
     elLoading.classList.add('hidden');
@@ -66,7 +67,7 @@
     elResult.classList.remove('hidden');
 
     // Gauge
-    renderGauge(data.score, cfg.color);
+    renderGauge(score, cfg.color);
 
     // Verdict badge
     elVerdictBadge.innerHTML = `${cfg.emoji} ${cfg.label}`;

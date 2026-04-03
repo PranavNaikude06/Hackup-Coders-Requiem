@@ -141,7 +141,7 @@
     document.getElementById(TL.BANNER_ID)?.remove();
 
     const verdict = result?.verdict ?? 'OFFLINE';
-    const score   = result?.score;
+    const score   = result?.score ?? result?.combined_score;
     const flags   = Array.isArray(result?.flags) ? result.flags : [];
     const action  = result?.recommended_action ?? '';
 
