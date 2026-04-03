@@ -1,3 +1,26 @@
 /* ThreatLens Scanner — Extension Overlay Styles (styles.css) */
-/* Injected into Gmail and Outlook Web by content scripts.      */
-/* Phase 14 will implement the complete overlay styles.         */
+/* Injected into Gmail and Outlook Web by content scripts.     */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* Loading banner pulse animation */
+@keyframes tlpulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.tl-pulse {
+  animation: tlpulse 1.2s ease-in-out infinite;
+}
+
+/* Base overlay class (applied by JS via inline styles — this is supplemental) */
+.threatlens-overlay {
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
