@@ -21,7 +21,7 @@ class ScoringEngine:
         else:  # SAFE
             return max(0.0, min(40.0, (1.0 - confidence) * 40))
 
-    def _run_ml_pipeline(self, url: str, email_text: str) -> dict:
+    def _run_ml_pipeline(self, url: str, email_text: str, sender: str = "", subject: str = "") -> dict:
         """Full local ML pipeline — used as final fallback when both LLMs fail."""
         flags = []
         url_score = 0
@@ -58,6 +58,19 @@ class ScoringEngine:
         if is_clone:
             flags.append(f"RULE HIT: Domain impersonates '{lookalike.get('matched_brand')}'")
             rule_hit = True
+            
+        # Hard rule check on Sender Address
+        if sender and "@" in sender:
+            # e.g. "Google <no-reply@accounts.google.com>" -> "accounts.google.com"
+            sender_email = _re.search(r'[\w\.-]+@[\w\.-]+', sender)
+            if sender_email:
+                sender_domain = sender_email.group(0).split("@")[1].strip()
+                sender_features = self.url_extractor.extract(sender_domain)
+                s_lookalike = sender_features.get("_lookalike", {})
+                if s_lookalike.get("is_lookalike"):
+                    flags.append(f"RULE HIT: Sender impersonates '{s_lookalike.get('matched_brand')}'")
+                    rule_hit = True
+
         if is_ip and no_ssl:
             flags.append("RULE HIT: Raw IP address used over HTTP")
             rule_hit = True
@@ -217,7 +230,7 @@ class ScoringEngine:
         else:
             # ── Both LLMs failed — run full ML pipeline ──
             print("[ScoringEngine] Both LLMs unavailable — running local ML pipeline")
-            final_result = self._run_ml_pipeline(url, email_text)
+            final_result = self._run_ml_pipeline(url, email_text, sender, subject)
             
         # ── Campaign Clustering ──
         try:

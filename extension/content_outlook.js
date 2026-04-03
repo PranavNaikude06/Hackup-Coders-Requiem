@@ -60,7 +60,16 @@
     const bodyEl = getEmailBodyEl();
     if (!bodyEl) return;
 
-    const cacheKey = buildOutlookCacheKey();
+    // Outlook Classic subject
+    const subject = document.querySelector('[aria-label="Message subject"]')?.innerText?.trim()
+      ?? document.querySelector('.SubjectLine')?.innerText?.trim()
+      ?? '';
+    // Outlook Classic sender span
+    const sender  = document.querySelector('.lvHighlight')?.innerText?.trim()
+      ?? document.querySelector('[aria-label*="From"]')?.innerText?.trim()
+      ?? '';
+      
+    const cacheKey = ThreatLens.buildCacheKey(subject, sender);
 
     // Skip if already scanned in this session
     if (scannedKeys.has(cacheKey)) return;

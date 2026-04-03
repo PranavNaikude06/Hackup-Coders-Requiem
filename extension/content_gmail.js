@@ -59,7 +59,9 @@
     const bodyEl = getEmailBodyEl();
     if (!bodyEl) return;
 
-    const cacheKey = buildGmailCacheKey();
+    const subject  = document.querySelector('h2.hP')?.innerText?.trim() ?? '';
+    const sender   = document.querySelector('.gD')?.getAttribute('email') ?? '';
+    const cacheKey = ThreatLens.buildCacheKey(subject, sender);
 
     // Skip if already scanned in this session
     if (scannedKeys.has(cacheKey)) return;
