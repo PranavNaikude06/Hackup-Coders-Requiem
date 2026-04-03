@@ -213,11 +213,7 @@ async def analyze_combined_endpoint(request: Request):
 
 
     if not url_text and not email_text:
-        raise HTTPException(status_code=400, detail="Please provide both 'url' and 'email_text'")
-    if not url_text:
-        raise HTTPException(status_code=400, detail="Missing 'url'. If you only want to analyze email, use /analyze/email endpoint.")
-    if not email_text:
-        raise HTTPException(status_code=400, detail="Missing 'email_text'. If you only want to analyze a URL, use /analyze/url endpoint.")
+        raise HTTPException(status_code=400, detail="Please provide at least 'url' or 'email_text'")
 
     if _email_service is None:
         raise HTTPException(status_code=503, detail="Email NLP service not initialized")
