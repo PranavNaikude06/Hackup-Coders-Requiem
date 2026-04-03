@@ -51,7 +51,10 @@ async function handleScanEmailWithStream(message, sender) {
 
   // Fire SSE stream in parallel (non-blocking) for live progress updates
   if (tabId) {
-    connectSSEStream(tabId, { email_body, url_list: urls }).catch(() => {
+    connectSSEStream(tabId, { 
+      email_text: email_body, 
+      url: urls.length > 0 ? urls[0] : '' 
+    }).catch(() => {
       // SSE is best-effort — failure doesn't block the final result
     });
   }
@@ -128,8 +131,8 @@ async function handleScanEmail(message, sender) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        url_list: urls,
-        email_body: email_body
+        url: urls.length > 0 ? urls[0] : '',
+        email_text: email_body
       })
     });
 
