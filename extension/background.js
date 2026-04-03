@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(sendResponse)
       .catch(err => {
         console.error('[ThreatLens] Unexpected scan error:', err);
-        sendResponse(buildOfflineResult());
+        sendResponse(buildOfflineResult(err.message));
       });
     return true; // Keep channel open for async sendResponse
   }
@@ -156,7 +156,7 @@ async function handleScanEmail(message, sender) {
 
   } catch (err) {
     console.error('[ThreatLens] Backend unreachable:', err.message);
-    const offlineResult = buildOfflineResult();
+    const offlineResult = buildOfflineResult(err.message);
 
     await chrome.storage.local.set({
       lastScanResult: {
@@ -174,11 +174,11 @@ async function handleScanEmail(message, sender) {
 /**
  * Builds a standardised OFFLINE result object.
  */
-function buildOfflineResult() {
+function buildOfflineResult(errMsg = '') {
   return {
     verdict: 'OFFLINE',
     score: null,
-    flags: ['Backend Unreachable'],
-    recommended_action: 'Ensure the ThreatLens server is running on localhost:8000.'
+    flags: ['Backend Unreachable', ...(errMsg ? [`Error: ${errMsg}`] : [])],
+    recommended_action: `Ensure the server is running on 127.0.0.1:8000. ${errMsg}`
   };
 }
