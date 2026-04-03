@@ -57,7 +57,7 @@
   function renderResult(data) {
     const cfg     = VERDICT_CONFIG[data.verdict] ?? VERDICT_CONFIG.OFFLINE;
     const flags   = Array.isArray(data.flags) ? data.flags : [];
-    const action  = data.recommended_action ?? '';
+    const action  = data.llm_human_explanation ?? data.recommended_action ?? '';
     const client  = CLIENT_LABELS[data.client] ?? CLIENT_LABELS.unknown;
     const score   = data.score ?? data.combined_score;
 
