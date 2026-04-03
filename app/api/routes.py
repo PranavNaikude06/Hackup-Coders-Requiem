@@ -2,6 +2,7 @@ import json
 import re
 
 from fastapi import APIRouter, HTTPException, Request, File, UploadFile
+from fastapi.responses import StreamingResponse
 from app.services.feature_extractor import URLFeatureExtractor
 from app.services.attachment_analyzer import AttachmentAnalyzer
 from app.services.model_runner import ModelRunner
@@ -235,6 +236,26 @@ async def analyze_combined_endpoint(request: Request):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/attachment/stream")
+async def analyze_attachment_stream_endpoint(file: UploadFile = File(...)):
+    filename = file.filename or "unknown"
+    file_bytes = await file.read()
+
+    attachment_analyzer = AttachmentAnalyzer(
+        url_extractor=extractor,
+        model_runner=runner,
+        text_analyzer=_text_service
+    )
+
+    async def event_generator():
+        try:
+            async for event in attachment_analyzer.analyze_stream(filename, file_bytes):
+                yield f"data: {json.dumps(event)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @router.post("/attachment")
 async def analyze_attachment_endpoint(file: UploadFile = File(...)):
