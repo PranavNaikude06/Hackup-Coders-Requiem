@@ -192,7 +192,7 @@ class ScoringEngine:
                 score = 20
 
             flags = []
-            if llm_result.get("escalate_to_phishing"):
+            if llm_result.get("escalate_to_phishing") and verdict != "SAFE":
                 flags.append("LLM: Critical context mismatch — phishing intent confirmed")
             
             provider = llm_result.get("_provider", "llm")
@@ -203,7 +203,7 @@ class ScoringEngine:
                 "analysis_provider": provider,
                 "chain_detected": False,
                 "chain_flag": None,
-                "mismatch_detected": llm_result.get("escalate_to_phishing", False),
+                "mismatch_detected": llm_result.get("escalate_to_phishing", False) and verdict != "SAFE",
                 "mismatch_flag": None,
                 "email_intent": None,
                 "url_intent": None,
