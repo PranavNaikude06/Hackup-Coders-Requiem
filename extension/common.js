@@ -227,4 +227,55 @@
       .replace(/"/g, '&quot;');
   }
 
+
+  // ─── SSE Progress Handler ───────────────────────────────────────────────────
+
+  /**
+   * Progress stage labels mapped from backend event types.
+   * Shown in the loading banner while scan is in progress.
+   */
+  const SSE_LABELS = {
+    url_analysis_start:    '🔗 Analyzing URLs...',
+    url_analysis_complete: '🔗 URLs analyzed',
+    email_analysis_start:  '📧 Analyzing email body...',
+    email_analysis_done:   '📧 Email body analyzed',
+    combining_scores:      '🔀 Combining scores...',
+    complete:              '✅ Analysis complete',
+  };
+
+  /**
+   * Update the text content of an active loading banner.
+   * Called when SSE_PROGRESS messages arrive from background.js.
+   * @param {string} text - Status text to display
+   */
+  TL.updateBannerText = function (text) {
+    const banner = document.getElementById(TL.BANNER_ID);
+    if (!banner || banner.getAttribute('data-threatlens') !== 'loading') return;
+
+    // Find the text node after the pulse dot and update it
+    const pulse = banner.querySelector('.tl-pulse');
+    if (pulse && pulse.nextSibling) {
+      pulse.nextSibling.textContent = ` ${text}`;
+    } else {
+      banner.childNodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('ThreatLens')) {
+          node.textContent = ` ${text}`;
+        }
+      });
+    }
+  };
+
+  /**
+   * Listen for SSE progress events forwarded from the background service worker.
+   * Updates the loading banner's status text in real time.
+   */
+  if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.type === 'SSE_PROGRESS' && message.event) {
+        const label = SSE_LABELS[message.event.stage] || message.event.message || '';
+        if (label) TL.updateBannerText(label);
+      }
+    });
+  }
+
 })();
