@@ -205,7 +205,7 @@ class ScoringEngine:
                 score = 20
 
             flags = []
-            if llm_result.get("escalate_to_phishing") and verdict != "SAFE":
+            if llm_result.get("escalate_to_phishing") and verdict == "PHISHING":
                 flags.append("LLM: Critical context mismatch — phishing intent confirmed")
             
             provider = llm_result.get("_provider", "llm")
