@@ -5,5 +5,4 @@
 
 # Ignore diagnostic text files
 *.txt
-!backend/requirements.txt
-!requirements.txt
+

@@ -3,9 +3,7 @@
  * Connects to FastAPI backend at /api/* (proxied to localhost:8000 in dev).
  * Normalises all four scan-type responses into a single ScanResult shape.
  */
-
-const BASE = '/api';
-
+const BASE = import.meta.env.VITE_API_URL || '/api';
 // ─── Normalised result shape consumed by Result.tsx ───────────────────────────
 
 export interface EmbeddedUrl {
