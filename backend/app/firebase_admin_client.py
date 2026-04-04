@@ -18,18 +18,28 @@ def get_firebase_app():
     if _app is not None:
         return _app
 
-    service_account_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH")
+    # Priority 1: Inline JSON string (ideal for Railway/cloud deployments)
+    service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+    if service_account_json:
+        import json
+        import tempfile
+        logger.info("Initializing Firebase Admin with inline service account JSON")
+        sa_dict = json.loads(service_account_json)
+        cred = credentials.Certificate(sa_dict)
+        _app = firebase_admin.initialize_app(cred)
+        return _app
 
+    # Priority 2: File path (local dev)
+    service_account_path = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH")
     if service_account_path and os.path.exists(service_account_path):
-        logger.info(f"Initializing Firebase Admin with service account: {service_account_path}")
+        logger.info(f"Initializing Firebase Admin with service account file: {service_account_path}")
         cred = credentials.Certificate(service_account_path)
         _app = firebase_admin.initialize_app(cred)
-    else:
-        # Fall back to Application Default Credentials (ADC)
-        # Works on Google Cloud / Railway with Workload Identity
-        logger.info("Initializing Firebase Admin with Application Default Credentials")
-        _app = firebase_admin.initialize_app()
+        return _app
 
+    # Priority 3: Application Default Credentials (GCP only)
+    logger.info("Initializing Firebase Admin with Application Default Credentials")
+    _app = firebase_admin.initialize_app()
     return _app
 
 
