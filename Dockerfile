@@ -10,7 +10,7 @@ WORKDIR /app
 
 # Copy only the requirements first to cache the pip install layer
 COPY backend/requirements.txt ./backend/
-RUN pip install --no-cache-dir torch==2.2.0 --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir torch==2.4.0 --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 # Copy the rest of the backend source code
