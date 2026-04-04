@@ -5,17 +5,48 @@ import { GlassCard } from '../components/GlassCard';
 import { EmissionButton } from '../components/EmissionButton';
 import { Logo } from '../components/Logo';
 import bgImage from 'figma:asset/62bbae5fd46eea7de9c86b6eeed87297c1e7a626.png';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 
 export default function Auth() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual authentication later
-    navigate('/');
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+        navigate('/');
+      } else {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Create user document in firestore
+        await setDoc(doc(db, 'users', userCredential.user.uid), {
+          email: userCredential.user.email,
+          createdAt: new Date().toISOString(),
+        });
+        navigate('/');
+      }
+    } catch (err: any) {
+      console.error("Auth error", err);
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+        setError('Invalid email or password.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('An operative with this email already exists.');
+      } else {
+        setError('Authentication failed. Please check credentials.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,6 +89,12 @@ export default function Auth() {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-6 p-3 bg-red-900/40 border border-red-500/50 rounded-lg text-red-300 text-sm text-center">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div className="relative">
@@ -68,7 +105,7 @@ export default function Auth() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Operative Email"
+                  placeholder="Email Id"
                   className="w-full bg-black/50 border border-gray-700/50 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all font-mono text-sm"
                   required
                 />
@@ -82,7 +119,7 @@ export default function Auth() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Decryption Key (Password)"
+                  placeholder="Password"
                   className="w-full bg-black/50 border border-gray-700/50 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all font-mono text-sm"
                   required
                 />
@@ -91,10 +128,10 @@ export default function Auth() {
 
             <EmissionButton
               onClick={() => {}}
-              disabled={!email || !password}
+              disabled={!email || !password || loading}
               icon={isLogin ? <Shield size={18} /> : <User size={18} />}
             >
-              {isLogin ? 'AUTHENTICATE' : 'ESTABLISH LINK'}
+              {loading ? 'PROCESSING...' : (isLogin ? 'AUTHENTICATE' : 'ESTABLISH LINK')}
             </EmissionButton>
 
             <div className="text-center mt-6">

@@ -4,14 +4,18 @@ import { InputSection } from '../components/InputSection';
 import type { InputData } from '../components/InputSection';
 import { HowItWorks } from '../components/HowItWorks';
 import { EmissionButton } from '../components/EmissionButton';
-import { Scan, User } from 'lucide-react';
+import { Scan, User, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import bgImage from 'figma:asset/62bbae5fd46eea7de9c86b6eeed87297c1e7a626.png';
+import { useAuth } from '../contexts/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 
 type ScanType = 'url' | 'file' | 'email' | 'combined' | null;
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [scanType, setScanType] = useState<ScanType>(null);
   const [hasData, setHasData] = useState(false);
   const [inputData, setInputData] = useState<InputData>({});
@@ -46,15 +50,27 @@ export default function Landing() {
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Top Right Auth Button */}
-        <div className="absolute top-6 right-6 z-20">
-          <button 
-            onClick={() => navigate('/auth')}
-            className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-gray-800 hover:border-cyan-500 rounded-lg text-sm text-gray-300 hover:text-cyan-400 transition-all shadow-[0_0_15px_-5px_rgba(0,255,255,0.2)] backdrop-blur-md"
-          >
-            <User size={16} />
-            <span className="font-mono">SIGN IN</span>
-          </button>
-        </div>
+        {scanType === null && (
+          <div className="absolute top-6 right-6 z-20">
+            {currentUser ? (
+              <button 
+                onClick={() => signOut(auth)}
+                className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-gray-800 hover:border-red-500 rounded-lg text-sm text-gray-300 hover:text-red-400 transition-all shadow-[0_0_15px_-5px_rgba(255,0,0,0.2)] backdrop-blur-md"
+              >
+                <LogOut size={16} />
+                <span className="font-mono">SIGN OUT</span>
+              </button>
+            ) : (
+              <button 
+                onClick={() => navigate('/auth')}
+                className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-gray-800 hover:border-cyan-500 rounded-lg text-sm text-gray-300 hover:text-cyan-400 transition-all shadow-[0_0_15px_-5px_rgba(0,255,255,0.2)] backdrop-blur-md"
+              >
+                <User size={16} />
+                <span className="font-mono">SIGN IN</span>
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Header - Only show logo when no scan type selected */}
         {scanType === null && (
