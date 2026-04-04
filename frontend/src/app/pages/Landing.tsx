@@ -4,7 +4,7 @@ import { InputSection } from '../components/InputSection';
 import type { InputData } from '../components/InputSection';
 import { HowItWorks } from '../components/HowItWorks';
 import { EmissionButton } from '../components/EmissionButton';
-import { Scan, User, LogOut } from 'lucide-react';
+import { Scan, User, LogOut, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import bgImage from 'figma:asset/62bbae5fd46eea7de9c86b6eeed87297c1e7a626.png';
 import { useAuth } from '../contexts/AuthContext';
@@ -54,7 +54,7 @@ export default function Landing() {
           <div className="absolute top-6 right-6 z-20">
             {currentUser ? (
               <div className="flex items-center gap-4 bg-black/40 border border-gray-800 rounded-lg pr-2 py-1 pl-4 backdrop-blur-md">
-                <span className="text-gray-300 font-mono text-sm max-w-[150px] truncate">
+                <span className="text-gray-300 font-mono text-sm whitespace-nowrap">
                   Welcome, <span className="text-cyan-400">{currentUser.displayName || currentUser.email?.split('@')[0]}</span>
                 </span>
                 <button 
@@ -77,16 +77,28 @@ export default function Landing() {
           </div>
         )}
 
-        {/* Header - Only show logo when no scan type selected */}
-        {scanType === null && (
-          <div className="mb-12">
-            <Logo size="large" />
-          </div>
-        )}
+        {/* Header/Back Button */}
+        <div className="mb-12 flex justify-between items-center">
+          {scanType === null ? (
+            <div className="w-full">
+              <Logo size="large" />
+            </div>
+          ) : (
+            <button
+              onClick={() => handleScanTypeChange(null, false)}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+            >
+              <div className="p-2 rounded-lg bg-gray-800/50 group-hover:bg-gray-700/50 transition-colors border border-gray-700">
+                <ArrowLeft size={20} />
+              </div>
+              <span className="font-semibold">Back to Home</span>
+            </button>
+          )}
+        </div>
 
         {/* Main Input Card */}
         <div className="flex justify-center mb-8">
-          <InputSection onScanTypeChange={handleScanTypeChange} />
+          <InputSection selectedScanType={scanType} onScanTypeChange={handleScanTypeChange} />
         </div>
 
         {/* CTA Button */}

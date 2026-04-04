@@ -2,13 +2,14 @@ import { motion } from 'motion/react';
 import { ReactNode, useState, useMemo } from 'react';
 
 interface EmissionButtonProps {
-  onClick: () => void;
+  onClick?: () => void;
   disabled: boolean;
   children: ReactNode;
   icon?: ReactNode;
+  type?: 'button' | 'submit' | 'reset';
 }
 
-export function EmissionButton({ onClick, disabled, children, icon }: EmissionButtonProps) {
+export function EmissionButton({ onClick, disabled, children, icon, type = 'button' }: EmissionButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   // Line configuration for full coverage
@@ -189,6 +190,7 @@ export function EmissionButton({ onClick, disabled, children, icon }: EmissionBu
 
       {/* Button */}
       <motion.button
+        type={type}
         onClick={onClick}
         disabled={disabled}
         onMouseEnter={() => setIsHovered(true)}

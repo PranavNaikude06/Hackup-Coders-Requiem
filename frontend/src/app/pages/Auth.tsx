@@ -154,7 +154,7 @@ export default function Auth() {
             </div>
 
             <EmissionButton
-              onClick={() => {}}
+              type="submit"
               disabled={!email || !password || loading}
               icon={isLogin ? <Shield size={18} /> : <User size={18} />}
             >

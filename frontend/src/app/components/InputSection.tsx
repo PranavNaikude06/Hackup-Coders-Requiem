@@ -15,10 +15,10 @@ export interface InputData {
 
 interface InputSectionProps {
   onScanTypeChange: (type: ScanType, hasData: boolean, inputData?: InputData) => void;
+  selectedScanType: ScanType;
 }
 
-export function InputSection({ onScanTypeChange }: InputSectionProps) {
-  const [selectedType, setSelectedType] = useState<ScanType>(null);
+export function InputSection({ onScanTypeChange, selectedScanType }: InputSectionProps) {
   const [url, setUrl] = useState('');
   const [email, setEmail] = useState('');
   const [fileName, setFileName] = useState('');
@@ -27,7 +27,6 @@ export function InputSection({ onScanTypeChange }: InputSectionProps) {
   const fileRef = useRef<File | undefined>(undefined);
 
   const handleTypeSelect = (type: ScanType) => {
-    setSelectedType(type);
     // Reset other fields when switching types
     setUrl('');
     setEmail('');
@@ -67,7 +66,7 @@ export function InputSection({ onScanTypeChange }: InputSectionProps) {
     <GlassCard className="p-8 max-w-3xl w-full">
       <div className="space-y-6">
         {/* Selection Buttons - Only show when nothing is selected */}
-        {selectedType === null && (
+        {selectedScanType === null && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -146,7 +145,7 @@ export function InputSection({ onScanTypeChange }: InputSectionProps) {
 
         {/* URL Scanner Input */}
         <AnimatePresence>
-          {selectedType === 'url' && (
+          {selectedScanType === 'url' && (
             <motion.div className="space-y-4">
               {/* Selected Type Header - Pop up animation */}
               <motion.div
@@ -190,7 +189,7 @@ export function InputSection({ onScanTypeChange }: InputSectionProps) {
 
         {/* File Upload Input */}
         <AnimatePresence>
-          {selectedType === 'file' && (
+          {selectedScanType === 'file' && (
             <motion.div className="space-y-4">
               {/* Selected Type Header - Pop up animation */}
               <motion.div
@@ -241,7 +240,7 @@ export function InputSection({ onScanTypeChange }: InputSectionProps) {
 
         {/* Email Analyzer Input */}
         <AnimatePresence>
-          {selectedType === 'email' && (
+          {selectedScanType === 'email' && (
             <motion.div className="space-y-4">
               {/* Selected Type Header - Pop up animation */}
               <motion.div
@@ -285,7 +284,7 @@ export function InputSection({ onScanTypeChange }: InputSectionProps) {
 
         {/* Combined Analysis Input */}
         <AnimatePresence>
-          {selectedType === 'combined' && (
+          {selectedScanType === 'combined' && (
             <motion.div className="space-y-4">
               {/* Selected Type Header - Pop up animation */}
               <motion.div
