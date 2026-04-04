@@ -73,7 +73,8 @@ async def analyze_stream(request: Request):
                     "risk_flag": u_risk,
                     "confidence": u_conf,
                     "brand_impersonation": lookalike.get("matched_brand") if lookalike.get("is_lookalike") else None,
-                    "key_reasons": url_analysis.get("humanized_verdict", {}).get("key_reasons", [])
+                    "key_reasons": url_analysis.get("humanized_verdict", {}).get("key_reasons", []),
+                    "features": url_features
                 })
             else:
                 u_risk = "SAFE"

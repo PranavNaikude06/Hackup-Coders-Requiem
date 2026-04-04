@@ -30,6 +30,7 @@ export interface ScanResult {
   url_confidence?: number;
   brand_impersonation?: string | null;
   url_key_reasons?: string[];
+  url_features?: Record<string, number>;
 
   // Email layer
   email_verdict?: string;
@@ -101,6 +102,7 @@ export async function scanUrl(url: string): Promise<ScanResult> {
     brand_impersonation: lookalike.is_lookalike ? lookalike.matched_brand : null,
     url_key_reasons: reasons,
     llm_human_explanation: model.humanized_verdict?.summary || '',
+    url_features: data.features,
   };
 }
 
@@ -233,6 +235,7 @@ export async function scanCombined(
                 partialResult.url_confidence = payload.confidence as number;
                 partialResult.brand_impersonation = (payload.brand_impersonation as string) || null;
                 partialResult.url_key_reasons = (payload.key_reasons as string[]) || [];
+                partialResult.url_features = (payload.features as Record<string, number>) || undefined;
               } else if (currentEvent === 'email_scan') {
                 partialResult.email_verdict = payload.email_verdict as string;
                 partialResult.evidence = (payload.evidence as string[]) || [];

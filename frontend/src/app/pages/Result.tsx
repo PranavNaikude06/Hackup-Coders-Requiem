@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import {
   ArrowLeft, FileText, AlertTriangle, Shield, Mail, Link,
   FolderOpen, Layers, CheckCircle2, AlertCircle, Cpu,
-  ExternalLink, Users
+  ExternalLink, Users, Search
 } from 'lucide-react';
 import { GlassCard } from '../components/GlassCard';
 import { useNavigate, useLocation } from 'react-router';
@@ -10,6 +10,45 @@ import type { ScanResult } from '../api/threatApi';
 import bgImage from 'figma:asset/62bbae5fd46eea7de9c86b6eeed87297c1e7a626.png';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+const FEATURE_LABELS: Record<string, string> = {
+  having_IP_Address: 'IP Address Check',
+  URL_Length: 'URL Length',
+  Shortining_Service: 'URL Shortener',
+  having_At_Symbol: 'Contains @ Symbol',
+  double_slash_redirecting: 'Double Slash Redirect',
+  Prefix_Suffix: 'Dashes in Domain',
+  having_Sub_Domain: 'Subdomains Structure',
+  SSLfinal_State: 'SSL Certificate',
+  Domain_registeration_length: 'Domain Age',
+  Favicon: 'Favicon Location',
+  port: 'Non-standard Port',
+  HTTPS_token: 'HTTPS Token in Domain',
+  Request_URL: 'External Objects',
+  URL_of_Anchor: 'External Anchors',
+  Links_in_tags: 'Links in Meta Tags',
+  SFH: 'Server Form Handler',
+  Submitting_to_email: 'Submits to Email',
+  Abnormal_URL: 'Abnormal URL',
+  Redirect: 'Redirection Count',
+  on_mouseover: 'OnMouseOver Obfuscation',
+  RightClick: 'Right-Click Disabled',
+  popUpWidnow: 'Pop-Up Window',
+  Iframe: 'Iframe Redirection',
+  age_of_domain: 'Age of Domain',
+  DNSRecord: 'DNS Record',
+  web_traffic: 'Web Traffic Rank',
+  Page_Rank: 'Page Rank',
+  Google_Index: 'Google Index',
+  Links_pointing_to_page: 'Inbound Links',
+  Statistical_report: 'Statistical Report'
+};
+
+const FEATURE_VALUES: Record<number, { text: string, color: string }> = {
+  [-1]: { text: 'Safe', color: 'text-green-400' },
+  [0]: { text: 'Suspicious', color: 'text-yellow-400' },
+  [1]: { text: 'Risky', color: 'text-red-400' }
+};
 
 function getIndicatorStyle(score: number, verdict: string) {
   if (verdict === 'SAFE' || score <= 25) {
@@ -470,6 +509,37 @@ export default function Result() {
                 );
               })}
             </div>
+
+            {/* ML URL Parameters */}
+            {result.url_features && Object.keys(result.url_features).filter(k => !k.startsWith('_')).length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
+                className="mb-6"
+              >
+                <GlassCard className="p-5 border border-gray-700/50 rounded-2xl">
+                  <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                    <Search size={20} className="text-cyan-400" />
+                    Feature Breakdown (ML Parameters)
+                  </h3>
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                    {Object.entries(result.url_features)
+                      .filter(([key]) => !key.startsWith('_'))
+                      .map(([key, rawValue]) => {
+                        const value = rawValue as number;
+                        const stateInfo = FEATURE_VALUES[value] || { text: 'Unknown', color: 'text-gray-400' };
+                        return (
+                          <div key={key} className="flex justify-between items-center bg-black/40 rounded-lg p-3 border border-gray-800">
+                            <span className="text-sm text-gray-300">{FEATURE_LABELS[key] || key}</span>
+                            <span className={`text-xs font-bold ${stateInfo.color}`}>{stateInfo.text}</span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </GlassCard>
+              </motion.div>
+            )}
 
             {/* Embedded URL list (if any) */}
             {result.embedded_urls && result.embedded_urls.length > 0 && (
