@@ -4,17 +4,18 @@
 
 ThreatLens is an AI-powered phishing detection platform that analyzes URLs, email bodies, and file attachments across multiple vectors. It uses a 3-layer detection engine — RandomForest URL analysis, DistilBERT email NLP, and hard deterministic rules — combined into a single risk score (0-100) with human-readable explainability. Built by Coder's Requiem for HackUp 2026.
 
-## Current Milestone: v3.0 Chrome Extension Scanner
+## Current Milestone: v4.0 B2B SaaS API Platform
 
-**Goal:** Build a Manifest V3 Chrome Extension that performs real-time phishing detection in Gmail and Outlook Web by integrating with the existing ThreatLens backend.
+**Goal:** Transform ThreatLens into a self-serve B2B API platform where businesses generate API keys and consume phishing detection as a service, with usage tracking and rate limiting.
 
 **Target features:**
-- MV3 Background Service Worker connecting to backend API (`localhost:8000`) and handling SSE streams
-- Client-specific content scripts (`content_gmail.js`, `content_outlook.js`) monitoring email reading panes via MutationObserver
-- Shared common logic (`common.js`) for debouncing, URL filtering, and caching
-- Non-intrusive colored UI overlay injected into reading pane (auto-dismiss for SAFE results)
-- Popup UI displaying detailed scan breakdown (gauge, client icon, risk flags) and rescanning controls
-- Incremental UI updates using backend SSE stream progress events
+- Self-serve Developer Dashboard for API key generation (Frontend)
+- Secure `tl_live_xxxx` API key storage in Firestore per user
+- FastAPI middleware validating `X-API-Key` header on all scan endpoints
+- URL scanning, email scanning, file attachment scanning exposed as authenticated REST API
+- Per-key usage tracking logged to Firestore (`key_id`, `endpoint`, `timestamp`)
+- Rate limiting with 100 req/month free tier, returning `429` when exceeded
+- Developer Dashboard UI showing usage stats and key management
 
 ## Core Value
 
@@ -40,12 +41,14 @@ Achieving 90%+ classification accuracy without relying on blacklists, through hi
 
 <!-- Current scope. Building toward these. -->
 
-- [ ] Chrome Extension background service worker (manifest v3)
-- [ ] Gmail content script & mutation observer
-- [ ] Outlook Web content script & mutation observer
-- [ ] Shared common script (overlay injection, caching, filtering)
-- [ ] Popup UI implementation (Tailwind CDN)
-- [ ] SSE streaming integration onto UI overlays
+- [ ] API key generation endpoint and Firestore storage
+- [ ] FastAPI API key authentication middleware
+- [ ] Authenticated `/api/v1/scan/url` endpoint
+- [ ] Authenticated `/api/v1/scan/email` endpoint
+- [ ] Authenticated `/api/v1/scan/file` endpoint
+- [ ] Per-key usage tracking in Firestore
+- [ ] Rate limiting enforcement (100 req/month free tier)
+- [ ] Developer Dashboard frontend page (key display, usage stats, regenerate)
 
 ### Out of Scope
 
@@ -92,4 +95,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-04 Milestone v3.0 started*
+*Last updated: 2026-04-04 Milestone v4.0 started*

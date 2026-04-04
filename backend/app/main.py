@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import routes
 from app.api.stream_routes import stream_router
+from app.api.apikey_routes import apikey_router
 from app.services.email_nlp import EmailNLPService
 from app.services.text_analyzer import TextAnalyzer
 
@@ -36,6 +37,7 @@ app.add_middleware(
 
 app.include_router(routes.router, prefix="/analyze")
 app.include_router(stream_router, prefix="/analyze")
+app.include_router(apikey_router, prefix="/api/v1/apikey", tags=["API Keys"])
 
 
 @app.get("/")
