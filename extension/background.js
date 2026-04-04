@@ -3,7 +3,7 @@
 // Caches last scan result in chrome.storage.local for popup display.
 // Phase 17: SSE streaming support added — forwards progress events to content scripts.
 
-const BACKEND_URL       = 'http://127.0.0.1:8000';
+const BACKEND_URL       = 'https://hackup-coders-requiem-production.up.railway.app';
 const COMBINED_ENDPOINT = `${BACKEND_URL}/analyze/combined`;
 const STREAM_ENDPOINT   = `${BACKEND_URL}/analyze/stream`;
 
