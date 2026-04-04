@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import routes
 from app.api.stream_routes import stream_router
 from app.api.apikey_routes import apikey_router
+from app.api.b2b_scan_routes import b2b_scan_router
 from app.services.email_nlp import EmailNLPService
 from app.services.text_analyzer import TextAnalyzer
 
@@ -38,6 +39,7 @@ app.add_middleware(
 app.include_router(routes.router, prefix="/analyze")
 app.include_router(stream_router, prefix="/analyze")
 app.include_router(apikey_router, prefix="/api/v1/apikey", tags=["API Keys"])
+app.include_router(b2b_scan_router, prefix="/api/v1/scan", tags=["B2B Scan"])
 
 
 @app.get("/")
