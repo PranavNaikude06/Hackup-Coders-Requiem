@@ -1,0 +1,4 @@
+.planning/
+.pytest_cache/
+.venv/
+.env

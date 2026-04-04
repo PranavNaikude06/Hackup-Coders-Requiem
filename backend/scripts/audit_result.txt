@@ -1,0 +1,60 @@
+﻿
+=== PHASE 1 / CORE ù Homograph Detector ===
+  [PASS] g00gle.com brand: google  (note: )
+  [PASS] amaz0n-security detected: True  (note: amazon brand embed)
+  [PASS] amaz0n-security brand: amazon  (note: )
+  [PASS] github.com NOT flagged: False  (note: real domain, no brand match)
+  [PASS] paypa1.com detected: True  (note: paypal homoglyph)
+  [PASS] paypa1.com brand: paypal  (note: )
+
+=== PHASE 2/4 ù Model Runner (no network) ===
+  [PASS] clean HTTPS: SAFE  (expected: ['SAFE'])
+  [FAIL] IP + no SSL: SAFE  (expected: ['HIGH_RISK', 'SUSPICIOUS'])
+  [PASS] paypa1 homograph: HIGH_RISK  (expected: ['HIGH_RISK'])
+  [PASS] amaz0n brand embed: HIGH_RISK  (expected: ['HIGH_RISK'])
+  [PASS] verdicts non-empty: True  (expected: [True])
+  [PASS] humanized summary exists: True  (expected: [True])
+python : Traceback (most 
+recent call last):
+At line:1 char:22
++ $env:PYTHONPATH='.'; 
+python 
+scripts/audit_v1.py 2>&1 
+| Out-File -File ...
++                      ~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo        
+      : NotSpecified: (T  
+  raceback (most recent   
+  call last)::String)     
+[], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+  File "D:\hackup\scripts\
+audit_v1.py", line 102, 
+in <module>
+    print(f"  [{status}] 
+{label}: {got}  
+(expected: {exp})")
+    ~~~~~^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^
+  File "C:\Users\Pranav\Ap
+pData\Local\Programs\Pytho
+n\Python313\Lib\encodings\
+cp1252.py", line 19, in 
+encode
+    return codecs.charmap_
+encode(input,self.errors,e
+ncoding_table)[0]
+           ~~~~~~~~~~~~~~~
+~~~~~~^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
+UnicodeEncodeError: 
+'charmap' codec can't 
+encode character '\u2264' 
+in position 30: character 
+maps to <undefined>

@@ -1,8 +1,20 @@
-# ThreatLens Backend
+# ThreatLens
 
 ## What This Is
 
-ThreatLens Backend is an advanced parameter-based system designed to detect phishing URLs using structural characteristics rather than relying on hardcoded threat blacklists. It extracts 50+ specific features from any URL or email body and scores them using a three-layer architecture (RandomForest logic, DistilBERT text analysis, and hard deterministic rules) to provide explainable risk flags and accurately classify zero-day phishing attempts.
+ThreatLens is an AI-powered phishing detection platform that analyzes URLs, email bodies, and file attachments across multiple vectors. It uses a 3-layer detection engine — RandomForest URL analysis, DistilBERT email NLP, and hard deterministic rules — combined into a single risk score (0-100) with human-readable explainability. Built by Coder's Requiem for HackUp 2026.
+
+## Current Milestone: v3.0 Chrome Extension Scanner
+
+**Goal:** Build a Manifest V3 Chrome Extension that performs real-time phishing detection in Gmail and Outlook Web by integrating with the existing ThreatLens backend.
+
+**Target features:**
+- MV3 Background Service Worker connecting to backend API (`localhost:8000`) and handling SSE streams
+- Client-specific content scripts (`content_gmail.js`, `content_outlook.js`) monitoring email reading panes via MutationObserver
+- Shared common logic (`common.js`) for debouncing, URL filtering, and caching
+- Non-intrusive colored UI overlay injected into reading pane (auto-dismiss for SAFE results)
+- Popup UI displaying detailed scan breakdown (gauge, client icon, risk flags) and rescanning controls
+- Incremental UI updates using backend SSE stream progress events
 
 ## Core Value
 
@@ -14,19 +26,26 @@ Achieving 90%+ classification accuracy without relying on blacklists, through hi
 
 <!-- Shipped and confirmed valuable. -->
 
-(None yet — ship to validate)
+- ✓ URL feature extraction engine (30 structural parameters) — v1.0 Phase 1
+- ✓ RandomForestClassifier trained and serialized (rf_model.pkl) — v1.0 Phase 2
+- ✓ DistilBERT email NLP analysis with evidence flags — v1.0 Phase 3
+- ✓ `/analyze/url` and `/analyze/email` endpoints — v1.0 Phase 4
+- ✓ Human-readable risk flags with recommended actions — v1.0 Phase 5
+- ✓ Typosquatting / homograph detection engine — v1.0
+- ✓ Hard rules: IP floor, DNS safety floor, confidence capping — v1.0
+- ✓ VirusTotal Dynamic Attachment Analysis / Polling & Embed Scanning — v2.0 Phase 10
+- ✓ Server-Sent Events (SSE) FastAPI Streaming Integration — v2.0 Phase 11
 
 ### Active
 
 <!-- Current scope. Building toward these. -->
 
-- [ ] Build Feature Extraction Engine capable of parsing 50+ binary and numerical URL parameters.
-- [ ] Gather, clean, and balance a dataset of 10,000+ real-world URLs for training purposes.
-- [ ] Train, optimize, and serialize a RandomForestClassifier on extracted URL parameters.
-- [ ] Implement a pre-trained DistilBERT integration to perform email-body textual analysis.
-- [ ] Build a FastAPI server exposing `/analyze/url`, `/analyze/email`, and `/analyze/combined` endpoints.
-- [ ] Combine model inferences and hard rules using a distinct 40/40/20 weighted architecture.
-- [ ] Develop dynamic human-readable risk flags tracing decisions down to specific URL parameters.
+- [ ] Chrome Extension background service worker (manifest v3)
+- [ ] Gmail content script & mutation observer
+- [ ] Outlook Web content script & mutation observer
+- [ ] Shared common script (overlay injection, caching, filtering)
+- [ ] Popup UI implementation (Tailwind CDN)
+- [ ] SSE streaming integration onto UI overlays
 
 ### Out of Scope
 
@@ -73,4 +92,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after initialization*
+*Last updated: 2026-04-04 Milestone v3.0 started*
