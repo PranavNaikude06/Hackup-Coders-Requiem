@@ -1,21 +1,9 @@
-import { createBrowserRouter, Navigate } from "react-router";
-import { useAuth } from "./contexts/AuthContext";
+import { createBrowserRouter } from "react-router";
 import Landing from "./pages/Landing";
 import Analyzing from "./pages/Analyzing";
 import Result from "./pages/Result";
 import Auth from "./pages/Auth";
-
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { currentUser, loading } = useAuth();
-  
-  if (loading) return null; // or a loading spinner
-  
-  if (!currentUser) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  return <>{children}</>;
-}
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
