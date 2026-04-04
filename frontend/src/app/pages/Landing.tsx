@@ -53,13 +53,18 @@ export default function Landing() {
         {scanType === null && (
           <div className="absolute top-6 right-6 z-20">
             {currentUser ? (
-              <button 
-                onClick={() => signOut(auth)}
-                className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-gray-800 hover:border-red-500 rounded-lg text-sm text-gray-300 hover:text-red-400 transition-all shadow-[0_0_15px_-5px_rgba(255,0,0,0.2)] backdrop-blur-md"
-              >
-                <LogOut size={16} />
-                <span className="font-mono">SIGN OUT</span>
-              </button>
+              <div className="flex items-center gap-4 bg-black/40 border border-gray-800 rounded-lg pr-2 py-1 pl-4 backdrop-blur-md">
+                <span className="text-gray-300 font-mono text-sm max-w-[150px] truncate">
+                  Welcome, <span className="text-cyan-400">{currentUser.displayName || currentUser.email?.split('@')[0]}</span>
+                </span>
+                <button 
+                  onClick={() => signOut(auth)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-black/40 border border-gray-700 hover:border-red-500 rounded-md text-sm text-gray-400 hover:text-red-400 transition-all shadow-[0_0_15px_-5px_rgba(255,0,0,0.2)]"
+                  title="Sign Out"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
             ) : (
               <button 
                 onClick={() => navigate('/auth')}
