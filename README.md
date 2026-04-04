@@ -2,7 +2,7 @@
 
 > Real-time, zero-day phishing detection — no blacklists, no blind spots.
 
-![ThreatLens Dashboard Overview](assets/dashboard_overview.png)
+![ThreatLens Dashboard](WhatsApp%20Image%202026-04-04%20at%2012.32.57%20PM%20(1).jpeg)
 
 **[▶ Watch Demo](#)** &nbsp;|&nbsp; **Built by Coder's Requiem · HackUp 2026**
 
