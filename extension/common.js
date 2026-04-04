@@ -209,12 +209,7 @@
       document.getElementById(TL.BANNER_ID)?.remove();
     });
 
-    // Auto-dismiss SAFE results after 6 seconds
-    if (verdict === 'SAFE') {
-      setTimeout(() => {
-        document.getElementById(TL.BANNER_ID)?.remove();
-      }, 6000);
-    }
+    // Auto-dismiss removed per user request: overlay stays until 'X' is explicitly clicked.
   };
 
   // ─── Internal Helpers ───────────────────────────────────────────────────────
