@@ -2,3 +2,8 @@
 .pytest_cache/
 .venv/
 .env
+
+# Ignore diagnostic text files
+*.txt
+!backend/requirements.txt
+!requirements.txt
